@@ -2,6 +2,7 @@ import streamlit as st
 from gtts import gTTS
 import os
 import tempfile
+import json
 
 # Function to convert text to speech
 def convert_text_to_speech(text):
@@ -15,9 +16,21 @@ def convert_text_to_speech(text):
 st.set_page_config(page_title="Text to Speech API", page_icon="🎤")
 st.title("Text to Speech API")
 
-text_input = st.text_input("Enter text to convert to speech:")
+# Allow POST requests for API usage
+if st.request.method == "POST":
+    data = st.request.json()
+    text_input = data.get("text")
+    
+    if text_input:
+        audio_file_path = convert_text_to_speech(text_input)
+        audio_url = audio_file_path.replace(" ", "%20")  # URL-encode spaces
+        st.json({"audio_url": audio_url})
+    else:
+        st.json({"error": "No text provided."})
 
-if text_input:
+# Optional: Add UI for testing
+text_input = st.text_input("Enter text to convert to speech:")
+if text_input and st.button("Convert"):
     audio_file_path = convert_text_to_speech(text_input)
     st.success("Conversion successful!")
     st.audio(audio_file_path, format='audio/mp3')
