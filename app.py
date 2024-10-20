@@ -17,23 +17,17 @@ st.set_page_config(page_title="Text to Speech API", page_icon="🎤")
 # UI for testing
 st.title("Text to Speech API")
 
-# Check if it's an API request
-if "api" in st.experimental_get_query_params():
-    # Handle API requests
-    try:
-        text_input = st.experimental_get_query_params().get("text", [""])[0]
-        
-        if text_input:
-            audio_base64 = convert_text_to_speech(text_input)
-            st.json({"audio": audio_base64})
-        else:
-            st.json({"error": "No text provided."})
-    except Exception as e:
-        st.json({"error": str(e)})
-else:
-    # UI for manual testing
+# Create a form for text input
+with st.form("text_to_speech_form"):
     text_input = st.text_input("Enter text to convert to speech:")
-    if text_input and st.button("Convert"):
-        audio_base64 = convert_text_to_speech(text_input)
-        st.audio(f"data:audio/mp3;base64,{audio_base64}", format='audio/mp3')
-        st.success("Conversion successful!")
+    submit_button = st.form_submit_button("Convert")
+
+if submit_button and text_input:
+    audio_base64 = convert_text_to_speech(text_input)
+    st.audio(f"data:audio/mp3;base64,{audio_base64}", format='audio/mp3')
+    st.success("Conversion successful!")
+    
+    # Display the base64 encoded audio for API use
+    st.json({"audio": audio_base64})
+elif submit_button:
+    st.error("Please enter some text to convert.")
