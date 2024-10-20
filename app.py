@@ -16,11 +16,17 @@ def convert_text_to_speech(text):
 st.set_page_config(page_title="Text to Speech API", page_icon="🎤")
 st.title("Text to Speech API")
 
+if st.experimental_get_query_params():  # Check if it's a GET request
+    text_input = st.experimental_get_query_params().get("text", [None])[0]
+    if text_input:
+        audio_file_path = convert_text_to_speech(text_input)
+        st.audio(audio_file_path, format='audio/mp3')
+
 # Allow POST requests for API usage
 if st.request.method == "POST":
     data = st.request.json()
     text_input = data.get("text")
-    
+
     if text_input:
         audio_file_path = convert_text_to_speech(text_input)
         audio_url = audio_file_path.replace(" ", "%20")  # URL-encode spaces
