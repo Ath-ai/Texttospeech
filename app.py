@@ -1,7 +1,6 @@
 import streamlit as st
 from gtts import gTTS
-import tempfile
-import os
+import base64
 from io import BytesIO
 
 # Function to convert text to speech
@@ -9,7 +8,8 @@ def convert_text_to_speech(text):
     tts = gTTS(text=text, lang='en')
     audio_bytes = BytesIO()
     tts.write_to_fp(audio_bytes)
-    return audio_bytes.getvalue()
+    audio_bytes.seek(0)
+    return base64.b64encode(audio_bytes.read()).decode()
 
 # Streamlit API
 st.set_page_config(page_title="Text to Speech API", page_icon="🎤")
@@ -17,25 +17,23 @@ st.set_page_config(page_title="Text to Speech API", page_icon="🎤")
 # UI for testing
 st.title("Text to Speech API")
 
-# Check if it's a POST request
-if st.experimental_get_query_params().get("api", [""])[0] == "true":
-    # Handle POST requests for API usage
+# Check if it's an API request
+if "api" in st.experimental_get_query_params():
+    # Handle API requests
     try:
-        data = st.experimental_get_query_params()
-        text_input = data.get("text", [None])[0]
+        text_input = st.experimental_get_query_params().get("text", [""])[0]
         
         if text_input:
-            audio_bytes = convert_text_to_speech(text_input)
-            st.audio(audio_bytes, format='audio/mp3')
-            st.success("Conversion successful!")
+            audio_base64 = convert_text_to_speech(text_input)
+            st.json({"audio": audio_base64})
         else:
-            st.error("No text provided.")
+            st.json({"error": "No text provided."})
     except Exception as e:
-        st.error(f"An error occurred: {str(e)}")
+        st.json({"error": str(e)})
 else:
     # UI for manual testing
     text_input = st.text_input("Enter text to convert to speech:")
     if text_input and st.button("Convert"):
-        audio_bytes = convert_text_to_speech(text_input)
-        st.audio(audio_bytes, format='audio/mp3')
+        audio_base64 = convert_text_to_speech(text_input)
+        st.audio(f"data:audio/mp3;base64,{audio_base64}", format='audio/mp3')
         st.success("Conversion successful!")
