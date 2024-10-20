@@ -18,7 +18,8 @@ st.set_page_config(page_title="Text to Speech API", page_icon="🎤")
 st.title("Text to Speech API")
 
 # Get text input from query parameter
-text_input = st.query_params.get("text", "")
+query_params = st.experimental_get_query_params()
+text_input = query_params.get("text", [""])[0]
 
 if text_input:
     audio_base64 = convert_text_to_speech(text_input)
