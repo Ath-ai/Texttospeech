@@ -8,12 +8,13 @@ def convert_text_to_speech(text):
     tts = gTTS(text=text, lang='en')
     audio_data = BytesIO()
     tts.write_to_fp(audio_data)
+    audio_data.seek(0)  # Rewind to start of the BytesIO buffer
     return audio_data
 
 # Streamlit API
 st.title("Text to Speech API")
 
-# Check if query parameters exist
+# Get query parameters
 params = st.experimental_get_query_params()
 
 # Extract the 'text' parameter from query params
@@ -22,7 +23,6 @@ text_input = params.get("text", [None])[0]
 if text_input:
     # Convert the text to speech
     audio_data = convert_text_to_speech(text_input)
-    audio_data.seek(0)  # Rewind to start of the file
 
     # Convert the audio data to a base64 string
     audio_base64 = base64.b64encode(audio_data.read()).decode("utf-8")
