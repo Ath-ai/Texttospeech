@@ -30,4 +30,4 @@ if text_input:
     # Send JSON response with base64 encoded audio
     st.json({"audio_base64": audio_base64})
 else:
-    st.json({"error": "No text provided. Please send a 'text' parameter."})
+    st.json({"error": "No text provided. Please send a 'text' parameter."}) 
