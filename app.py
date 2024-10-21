@@ -11,7 +11,7 @@ def convert_text_to_speech(text):
     audio_data.seek(0)  # Rewind to start of the BytesIO buffer
     return audio_data
 
-# Streamlit API
+# Streamlit app title
 st.title("Text to Speech API")
 
 # Get query parameters
