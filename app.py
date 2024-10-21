@@ -1,33 +1,30 @@
 import streamlit as st
 from gtts import gTTS
-from io import BytesIO
 import base64
+from io import BytesIO
 
-# Function to convert text to speech
-def convert_text_to_speech(text):
-    tts = gTTS(text=text, lang='en')
-    audio_data = BytesIO()
-    tts.write_to_fp(audio_data)
-    audio_data.seek(0)  # Rewind to start of the BytesIO buffer
-    return audio_data
+# Configure Streamlit
+st.set_page_config(page_title="Text-to-Speech API")
 
-# Streamlit app title
-st.title("Text to Speech API")
+def text_to_speech(text, language='en'):
+    try:
+        tts = gTTS(text=text, lang=language)
+        audio_buffer = BytesIO()
+        tts.write_to_fp(audio_buffer)
+        audio_b64 = base64.b64encode(audio_buffer.getvalue()).decode()
+        return {"status": "success", "audio": audio_b64}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
-# Get query parameters
-params = st.experimental_get_query_params()
+# API endpoint
+text = st.query_params.get("text", "")
+language = st.query_params.get("language", "en")
 
-# Extract the 'text' parameter from query params
-text_input = params.get("text", [None])[0]
-
-if text_input:
-    # Convert the text to speech
-    audio_data = convert_text_to_speech(text_input)
-
-    # Convert the audio data to a base64 string
-    audio_base64 = base64.b64encode(audio_data.read()).decode("utf-8")
-    
-    # Send JSON response with base64 encoded audio
-    st.json({"audio_base64": audio_base64})
+if text:
+    result = text_to_speech(text, language)
+    st.json(result)
 else:
-    st.json({"error": "No text provided. Please send a 'text' parameter."}) 
+    st.json({
+        "status": "error",
+        "message": "Please provide text parameter"
+    })
