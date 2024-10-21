@@ -16,9 +16,10 @@ def text_to_speech(text, language='en'):
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
-# API endpoint
-text = st.query_params.get("text", "")
-language = st.query_params.get("language", "en")
+# Get query parameters
+query_params = st.experimental_get_query_params()
+text = query_params.get("text", [""])[0]
+language = query_params.get("language", ["en"])[0]
 
 if text:
     result = text_to_speech(text, language)
